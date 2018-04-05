@@ -14,5 +14,8 @@ class Subject(Core):
 	standard = models.ForeignKey(Standard, on_delete=CASCADE)
 	teacher = models.ForeignKey(Member, on_delete=CASCADE)
 
+	class Meta:
+		unique_together = ('standard', 'teacher',)
+
 	def __str__(self):
 		return self.subject_name

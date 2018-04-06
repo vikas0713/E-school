@@ -6,7 +6,7 @@
 {% block content %}
     <link href="{% static 'css_files/dashboard.css' %}">
     <nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0">
-        <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="#">Company name</a>
+        <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="#">School Diary</a>
         <input class="form-control form-control-dark w-100" type="text" placeholder="Search" aria-label="Search">
         <ul class="navbar-nav px-3">
             <li class="nav-item text-nowrap">
@@ -29,13 +29,13 @@
                         <li class="nav-item">
                             <a class="nav-link" href="#">
                                 <span data-feather="file"></span>
-                                Orders
+                                Teachers
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="#">
                                 <span data-feather="shopping-cart"></span>
-                                Products
+                                Parent
                             </a>
                         </li>
                         <li class="nav-item">
@@ -95,7 +95,7 @@
 
             <main role="main" class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
                 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
-                    <h1 class="h2">Dashboard</h1>
+                    <h1 class="h2">DashBoard</h1>
                     <div class="btn-toolbar mb-2 mb-md-0">
                         <div class="btn-group mr-2">
                             <button class="btn btn-sm btn-outline-secondary">Share</button>
@@ -107,8 +107,72 @@
                         </button>
                     </div>
                 </div>
+            <!--check implemented to check weather the user is teacher?? -->
+                {% if request.user.is_parent_or_teacher %}
+                    <!--loop used on results to extract fields -->
+                    {% for result in results %}
 
-                <canvas class="my-4" id="myChart" width="900" height="380"></canvas>
+                        <h2 class="text-center"> <b>  Standard:{{result.subject.standard}} </b></h2>
+                        <div class="row">
+                            {%if result.assignment%}
+                                {% for assignment in result.assignment %}
+                                    <div class="card col-sm-3" style="width: 18rem;">
+
+                                        <img class="card-img-top" src="{% static 'images/thumbtack_note_assignment.png' %}" alt="Card image cap">
+                                        <div class="card-body">
+                                            <h5 class="card-title">Subject:<b>{{assignment.subject }}</b><br>
+                                               {{assignment.created_at}} Assignments:</h5>
+                                            <p class="card-text">
+                                                {{assignment.assignment_name}}</p>
+                                            <div>
+                                                <a href="#" class="btn btn-primary">Complete</a>
+                                                <a href="#" class="btn btn-primary">Incomplete</a>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                {% endfor %}
+                            {% else %}
+                                <h3> <b>No Assignment Given</b> </h3>
+
+
+                            {% endif %}
+
+
+                        </div>
+
+                    {% endfor %}
+
+                    <!--else check implemented for Parent user ?? -->
+
+                {% else %}
+                    <!--loop implemented to extract the results fields -->
+
+                    {% for students in results %}
+                        <h2 class="text-center"> Student name: <b>{{students.student}}</b> | Standard: <b>{{students.student.standard}}</b></h2>
+                    <div class="row">
+                        {% for assignment in students.assignment %}
+                            <div class="card col-sm-3" style="width: 18rem;">
+                            <img class="card-img-top" src="{% static 'images/thumbtack_note_assignment.png' %}" alt="Card image cap">
+                            <div class="card-body">
+                                            <h5 class="card-title">{{assignment.created_at}}<br>Assignments:<b>{{assignment.subject}}</b></h5>
+
+                                            <p class="card-text">
+                                                {{assignment}}</p>
+
+                                        </div>
+                                    </div>
+                            {% endfor %}
+
+                    </div>
+                    {% endfor %}
+                {% endif %}
+
+
+
+
+
+
 
                 <h2>Section title</h2>
                 <div class="table-responsive">
@@ -242,37 +306,38 @@
         </div>
     </div>
 
+
     <!-- Bootstrap core JavaScript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
 
-    <script>
-        var ctx = document.getElementById("myChart");
-        var myChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
-                datasets: [{
-                    data: [15339, 21345, 18483, 24003, 23489, 24092, 12034],
-                    lineTension: 0,
-                    backgroundColor: 'transparent',
-                    borderColor: '#007bff',
-                    borderWidth: 4,
-                    pointBackgroundColor: '#007bff'
-                }]
-            },
-            options: {
-                scales: {
-                    yAxes: [{
-                        ticks: {
-                            beginAtZero: false
-                        }
-                    }]
-                },
-                legend: {
-                    display: false,
-                }
-            }
-        });
-    </script>
-{% endblock  %}
+    {#    <script>#}
+    {#        var ctx = document.getElementById("myChart");#}
+    {#        var myChart = new Chart(ctx, {#}
+    {#            type: 'line',#}
+    {#            data: {#}
+    {#                labels: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],#}
+    {#                datasets: [{#}
+    {#                    data: [15339, 21345, 18483, 24003, 23489, 24092, 12034],#}
+    {#                    lineTension: 0,#}
+    {#                    backgroundColor: 'transparent',#}
+    {#                    borderColor: '#007bff',#}
+    {#                    borderWidth: 4,#}
+    {#                    pointBackgroundColor: '#007bff'#}
+    {#                }]#}
+    {#            },#}
+    {#            options: {#}
+    {#                scales: {#}
+    {#                    yAxes: [{#}
+    {#                        ticks: {#}
+    {#                            beginAtZero: false#}
+    {#                        }#}
+    {#                    }]#}
+    {#                },#}
+    {#                legend: {#}
+    {#                    display: false,#}
+    {#                }#}
+    {#            }#}
+    {#        });#}
+    {#    </script>#}
+{% endblock %}

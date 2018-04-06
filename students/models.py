@@ -1,6 +1,7 @@
 from django.db import models
 from django.db.models import CASCADE
 
+from assignments.models import Assignment
 from core.models import Core
 from members.models import Member
 from standards.models import Standard

@@ -107,7 +107,7 @@
                         </button>
                     </div>
                 </div>
-            <!--check implemented to check weather the user is teacher?? -->
+                <!--check implemented to check weather the user is teacher?? -->
                 {% if request.user.is_parent_or_teacher %}
                     <!--loop used on results to extract fields -->
                     {% for result in results %}
@@ -121,12 +121,13 @@
                                         <img class="card-img-top" src="{% static 'images/thumbtack_note_assignment.png' %}" alt="Card image cap">
                                         <div class="card-body">
                                             <h5 class="card-title">Subject:<b>{{assignment.subject }}</b><br>
-                                               {{assignment.created_at}} Assignments:</h5>
+                                                {{assignment.created_at}} Assignments:</h5>
                                             <p class="card-text">
                                                 {{assignment.assignment_name}}</p>
+
                                             <div>
-                                                <a href="#" class="btn btn-primary">Complete</a>
-                                                <a href="#" class="btn btn-primary">Incomplete</a>
+                                                <a href="{% url 'members:status' assignment.id %}" class="btn btn-primary">Proceed</a>
+
                                             </div>
                                         </div>
                                     </div>
@@ -150,24 +151,29 @@
 
                     {% for students in results %}
                         <h2 class="text-center"> Student name: <b>{{students.student}}</b> | Standard: <b>{{students.student.standard}}</b></h2>
-                    <div class="row">
-                        {% for assignment in students.assignment %}
-                            <div class="card col-sm-3" style="width: 18rem;">
-                            <img class="card-img-top" src="{% static 'images/thumbtack_note_assignment.png' %}" alt="Card image cap">
-                            <div class="card-body">
-                                            <h5 class="card-title">{{assignment.created_at}}<br>Assignments:<b>{{assignment.subject}}</b></h5>
+                        <div class="row">
+                            {% for assignment in students.assignment %}
+                                <div class="card col-sm-3" style="width: 18rem;">
+                                    <img class="card-img-top" src="{% static 'images/thumbtack_note_assignment.png' %}" alt="Card image cap">
+                                    <div class="card-body">
+                                        <h5 class="card-title">{{assignment.created_at}}<br>Assignments:<b>{{assignment.subject}}</b></h5>
 
-                                            <p class="card-text">
-                                                {{assignment}}</p>
-
-                                        </div>
+                                        <p class="card-text">
+                                            {{assignment}}</p>
+                                        <b>Status:
+                                        {% if students.status %}
+                                        'Complete'
+                                        {% else %}
+                                        'Incomplete'
+                                        {% endif %}</b>
+                                    <a href="{% url 'members:completion'%}">submit</a>
                                     </div>
+                                </div>
                             {% endfor %}
 
-                    </div>
+                        </div>
                     {% endfor %}
                 {% endif %}
-
 
 
 

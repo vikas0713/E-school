@@ -1,0 +1,16 @@
+{%  extends 'base_template.html' %}
+{% load static %}
+
+{% block content %}
+
+    <form class="'form-horizontal" action="{% url 'members:create' %}" method="post" >
+    {% csrf_token %}
+        <div align="center">
+            {% include 'form.html' %}
+            <button type="submit" class="signupbtn">SUBMIT</button>
+        </div>
+
+
+    </div>
+</form>
+{% endblock %}

@@ -129,4 +129,5 @@ try:
 except ImportError as e:
 	pass
 
-
+# mca_project settings
+LOGOUT_REDIRECT_URL = 'login'

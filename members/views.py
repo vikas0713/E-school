@@ -1,13 +1,17 @@
 import json
 
 from django.contrib import auth
+from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
+
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render
 from django.urls import reverse
+from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 
 from assignments.models import Assignment, FinishedAssignment
+from members.forms import AssignmentForm
 from members.utility.utils import Authenticate
 from students.models import Student
 from subjects.models import Subject
@@ -35,6 +39,14 @@ def login(request):
     return render(request, 'login.html')
 
 
+@csrf_exempt
+def user_logout(request):
+    if request.user:
+        auth.logout(request)
+        return HttpResponseRedirect(reverse('members:login'))
+
+
+@csrf_exempt
 @login_required(login_url='/members/login/')
 def dashboard(request):
     """
@@ -133,6 +145,21 @@ def complete(request, assignment_id, student_id):
             name = None
 
         return HttpResponse(content_type='application/json', content=json.dumps({'assignment': data, 'student': name}))
+
+
+@login_required(login_url='/members/login/')
+def create_assignment(request):
+    form_class = AssignmentForm
+
+    if request.method == 'GET':
+        form = form_class()
+        return render(request, 'create_assignment.html', {'form': form})
+
+    elif request.method == 'POST':
+        form = form_class(request.POST)
+        if form.is_valid:
+            form.save()
+            return render(request, 'create_assignment.html', {'form': form})
 
 
 

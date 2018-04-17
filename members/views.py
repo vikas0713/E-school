@@ -8,12 +8,12 @@ from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 
 from assignments.models import Assignment, FinishedAssignment
-from members.models import Member
 from members.utility.utils import Authenticate
 from students.models import Student
 from subjects.models import Subject
 
 
+@csrf_exempt
 def login(request):
     """
     Authenticate registered user by username and password
@@ -41,6 +41,8 @@ def dashboard(request):
     dashboard view for parent and teacher
     :param request:
     :return: teacher(subject ,assignment,) parent(student, assignment,)
+    ,parent view will return the assignment details of student according to the subject
+    and assignment status
     """
     all_results = []
     if request.user.is_parent_or_teacher:
@@ -52,20 +54,26 @@ def dashboard(request):
 
     else:
         # in case if it's parent
-
         for student in Student.objects.filter(parent_id=request.user.id):
-            assignment_list = Assignment.objects.filter(standard_id=student.standard_id)
-            student_completed = FinishedAssignment.objects.filter(student_id=student.id)
+            obj = {
+                "student": student,
+                "assignments": []
+            }
+            for assignment in Assignment.objects.filter(standard_id=student.standard_id):
+                if FinishedAssignment.objects.filter(student_id=student.id, assignment_id=assignment.id).exists():
+                    status = True
+                else:
+                    status = False
+                obj["assignments"].append({"assignment": assignment, "status": status,
+                                           "time": assignment.created_at,
+                                           "subject": assignment.subject})
 
-            if student_completed:
-                obj = True
-            else:
-                obj = False
-            all_results.append({'student': student, 'assignment': assignment_list,
-                                'status': obj})
+            all_results.append(obj)
+
     return render(request, 'dashboard.html', {'results': all_results})
 
 
+@csrf_exempt
 @login_required(login_url='/members/login/')
 def assignment_status(request, assignment_id):
     """
@@ -102,10 +110,9 @@ def assignment_status(request, assignment_id):
 
         return HttpResponse("Assignment Not Found")
 
-    # return render(request, 'assignment_status.html', {'content': ''})
-
 
 @csrf_exempt
+@login_required(login_url='/members/login/')
 def complete(request, assignment_id, student_id):
     if request.user.is_parent_or_teacher:
         try:
@@ -128,20 +135,5 @@ def complete(request, assignment_id, student_id):
         return HttpResponse(content_type='application/json', content=json.dumps({'assignment': data, 'student': name}))
 
 
-@csrf_exempt
-def completion_status(request):
-    data = []
-
-    if not request.user.is_parent_or_teacher:
-        for student in Student.objects.filter(parent_id=request.user.id):
-
-            student_completed = FinishedAssignment.objects.filter(student_id=student.id)
-
-            if student_completed:
-                obj = True
-            else:
-                obj = False
-            data.append({'obj': obj})
-    return render(request, 'student_report.html', {'data': data})
 
 

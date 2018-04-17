@@ -10,7 +10,7 @@
         <input class="form-control form-control-dark w-100" type="text" placeholder="Search" aria-label="Search">
         <ul class="navbar-nav px-3">
             <li class="nav-item text-nowrap">
-                <a class="nav-link" href="#">Sign out</a>
+                <a class="nav-link" href="{% url 'members:logout' %}">Sign out</a>
             </li>
         </ul>
     </nav>
@@ -149,24 +149,24 @@
                 {% else %}
                     <!--loop implemented to extract the results fields -->
 
-                    {% for students in results %}
-                        <h2 class="text-center"> Student name: <b>{{students.student}}</b> | Standard: <b>{{students.student.standard}}</b></h2>
+                    {% for details in results %}
+                        <h2 class="text-center"> Student name: <b>{{details.student}}</b> | Standard: <b>{{details.student.standard}}</b></h2>
                         <div class="row">
-                            {% for assignment in students.assignment %}
+                            {% for assignment in details.assignments %}
                                 <div class="card col-sm-3" style="width: 18rem;">
                                     <img class="card-img-top" src="{% static 'images/thumbtack_note_assignment.png' %}" alt="Card image cap">
                                     <div class="card-body">
-                                        <h5 class="card-title">{{assignment.created_at}}<br>Assignments:<b>{{assignment.subject}}</b></h5>
+                                        <h5 class="card-title">{{assignment.time}}<br>Assignments:<b>{{assignment.subject}}</b></h5>
 
                                         <p class="card-text">
-                                            {{assignment}}</p>
+                                            {{assignment.assignment.assignment_name}}</p>
                                         <b>Status:
-                                        {% if students.status %}
-                                        'Complete'
-                                        {% else %}
-                                        'Incomplete'
+                                        {% if assignment.status %}
+                                            'Complete'
+                                            {% else %}
+                                            'Incomplete'
                                         {% endif %}</b>
-                                    <a href="{% url 'members:completion'%}">submit</a>
+
                                     </div>
                                 </div>
                             {% endfor %}

@@ -13,7 +13,7 @@
 
     <form class="form-signin text-center" action="{% url 'members:login' %}" method="post">
     {% csrf_token %}
-        <img class="mb-4" src="https://getbootstrap.com/assets/brand/bootstrap-solid.svg" alt="" width="72" height="72">
+        <img class="mb-4" src="{% static 'images/schooldiary_icon.jpeg' %}" alt="" width="72" height="72">
         <h1 class="h3 mb-3 font-weight-normal">Please sign in</h1>
         <label for="inputEmail" class="sr-only">Email address</label>
         <input type="text" id="inputEmail" class="form-control" placeholder="username" name="username" required autofocus>

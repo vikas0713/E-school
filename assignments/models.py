@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import CASCADE
 
@@ -19,6 +20,12 @@ class Assignment(Core):
 
 	def __str__(self):
 		return self.assignment_name
+
+	def save(self, *args, **kwargs):
+		if self.teacher.is_parent_or_teacher:
+			super(Assignment, self).save(*args, **kwargs)
+		else:
+			raise ValidationError("You cant edit this model, because you dont have permission to do it")
 
 
 class FinishedAssignment(Core):

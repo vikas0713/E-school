@@ -1,14 +1,15 @@
 import json
 
-from django.contrib import auth
+from django.contrib import auth, messages
 from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
 
 from django.http import HttpResponseRedirect, HttpResponse
-from django.shortcuts import render
-from django.urls import reverse
+from django.shortcuts import render, get_object_or_404
+from django.urls import reverse, reverse_lazy
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
+from django.views.generic import DeleteView, UpdateView
 
 from assignments.models import Assignment, FinishedAssignment
 from members.forms import AssignmentForm
@@ -153,14 +154,37 @@ def create_assignment(request):
 
     if request.method == 'GET':
         form = form_class()
-        return render(request, 'create_assignment.html', {'form': form})
+        return render(request, 'create_assignment.html', {'form': form, 'create': True})
 
     elif request.method == 'POST':
         form = form_class(request.POST)
         if form.is_valid:
             form.save()
-            return render(request, 'create_assignment.html', {'form': form})
+            return render(request, 'create_assignment.html', {'form': form, 'create': True})
 
 
+def update_assignment(request, assignment_id):
+    obj = get_object_or_404(Assignment, id=assignment_id)
+    form = AssignmentForm(request.POST or None, instance=obj)
+    if request.method == "POST":
+        if form.is_valid():
+            obj = form.save(commit=False)
+            obj.save()
+
+        return HttpResponseRedirect(reverse('members:dashboard'))
+
+    context = {
+       'assignment': obj,
+       'form': form,
+       'create': False,
+       }
+    return render(request, 'create_assignment.html', context)
+
+
+def delete_assignment(request, assignment_id):
+    obj = get_object_or_404(Assignment, id=assignment_id)
+    obj.delete()
+    messages.success(request, 'successfully deleted')
+    return HttpResponseRedirect(reverse('members:dashboard'))
 
 

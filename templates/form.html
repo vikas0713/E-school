@@ -1,3 +1,6 @@
+{% load static %}
+<div class="card col-sm-8" style="width: 60%; border-radius: 30px;
+border-bottom-width: thick">
 {% for field in form %}
     <div class = 'form-group'>
     <div class="col-sm-offset-2 col-sm-10">
@@ -5,8 +8,9 @@
             {{ field.errors }}
         </span>
     </div>
-    <label class="control-label col-sm-2">
+    <label class="control-label col-sm-2" style="background-color:seagreen">
         <b>{{ field.label_tag }}</b></label>
-    <div class="col-sm-10">{{field}}</div>
+    <div class="col-sm-10" style="background-color: #3498DB">{{field}}</div>
     </div>
 {% endfor %}
+</div>

@@ -3,8 +3,24 @@
 {% block title %}
     Dashboard
 {% endblock %}
-{% block content %}
+{% block custom_css %}
     <link href="{% static 'css_files/dashboard.css' %}">
+    {#    <link href="{% static 'css_files/filter.css' %}">#}
+    {#    <script src="{% static 'js_files/filter.js' %}"></script>#}
+<style>
+li {
+    list-style: none;
+    line-height: 1.2em;
+}
+.dropdown-content{
+    position: absolute;
+}
+</style>
+
+
+{% endblock %}
+{% block content %}
+
     <nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0">
         <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="#">School Diary</a>
         <input class="form-control form-control-dark w-100" type="text" placeholder="Search" aria-label="Search">
@@ -98,12 +114,24 @@
                     <h1 class="h2">DashBoard</h1>
                     <div class="btn-toolbar mb-2 mb-md-0">
                         <div class="btn-group mr-2">
-                            <a href="{% url 'members:create'%}" class="btn btn-primary">Create</a>
+                            <a href="{% url 'members:create'%}" class="btn btn-primary">
+                                <span data-feather="file"></span>Create Assignment</a>
                         </div>
-                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle">
-                            <span data-feather="calendar"></span>
-                            This week
-                        </button>
+
+                        <div class="dropdown">
+                            <button class="dropbtn btn btn-danger dropdown-toggle" id="myDropdown">
+                                <span data-feather="filter"></span>
+                                Filter by
+
+                            </button>
+                            <div  class="dropdown-content">
+                                <ul>
+                                    <li><a href="#">standard</a></li>
+                                    <li><a href="#">subject</a></li>
+                                    <li><a href="#">assignment</a>
+                                </ul>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <!--check implemented to check weather the user is teacher?? -->
@@ -115,18 +143,23 @@
                         <div class="row">
                             {%if result.assignment%}
                                 {% for assignment in result.assignment %}
-                                    <div class="card col-sm-3" style="width: 18rem;">
+                                    <div class="card col-sm-4" style="width: 18rem;">
 
                                         <img class="card-img-top" src="{% static 'images/thumbtack_note_assignment.png' %}" alt="Card image cap">
                                         <div class="card-body">
                                             <h5 class="card-title">Subject:<b>{{assignment.subject }}</b><br>
-                                                {{assignment.created_at}} Assignments:</h5>
-                                            <p class="card-text">
-                                                {{assignment.assignment_name}}</p>
+                                                {{assignment.created_at}} <br>Assignments:</h5>
+                                            <b><p class="card-text">
+                                                {{assignment.assignment_name}}</p></b>
 
-                                            <div>
-                                                <a href="{% url 'members:status' assignment.id %}" class="btn btn-primary">Proceed</a>
-
+                                            <div style="font-size: unset">
+                                                <a href="{% url 'members:status' assignment.id %}" class="btn btn-primary">
+                                                    <span data-feather="bar-chart-2"></span>Feedback</a>
+                                                <a href = '{% url 'members:update' assignment.id %}' class="btn btn-primary">
+                                                    <span data-feather="file-text"></span> Edit</a>
+                                                <a href = '{% url 'members:delete' assignment.id%}' class="btn btn-danger" id="delete"
+                                                onclick="return confirm('Do you want to delete this Assignment? Press OK,');">
+                                                    <span data-feather="trash"> </span>Delete</a>
                                             </div>
                                         </div>
                                     </div>
@@ -160,11 +193,11 @@
                                         <p class="card-text">
                                             {{assignment.assignment.assignment_name}}</p>
                                         <b>Status:
-                                        {% if assignment.status %}
-                                            'Complete'
+                                            {% if assignment.status %}
+                                                'Complete'
                                             {% else %}
-                                            'Incomplete'
-                                        {% endif %}</b>
+                                                'Incomplete'
+                                            {% endif %}</b>
 
                                     </div>
                                 </div>
@@ -173,144 +206,18 @@
                         </div>
                     {% endfor %}
                 {% endif %}
-
-
-
-
-
-
-                <h2>Section title</h2>
-                <div class="table-responsive">
-                    <table class="table table-striped table-sm">
-                        <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Header</th>
-                            <th>Header</th>
-                            <th>Header</th>
-                            <th>Header</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr>
-                            <td>1,001</td>
-                            <td>Lorem</td>
-                            <td>ipsum</td>
-                            <td>dolor</td>
-                            <td>sit</td>
-                        </tr>
-                        <tr>
-                            <td>1,002</td>
-                            <td>amet</td>
-                            <td>consectetur</td>
-                            <td>adipiscing</td>
-                            <td>elit</td>
-                        </tr>
-                        <tr>
-                            <td>1,003</td>
-                            <td>Integer</td>
-                            <td>nec</td>
-                            <td>odio</td>
-                            <td>Praesent</td>
-                        </tr>
-                        <tr>
-                            <td>1,003</td>
-                            <td>libero</td>
-                            <td>Sed</td>
-                            <td>cursus</td>
-                            <td>ante</td>
-                        </tr>
-                        <tr>
-                            <td>1,004</td>
-                            <td>dapibus</td>
-                            <td>diam</td>
-                            <td>Sed</td>
-                            <td>nisi</td>
-                        </tr>
-                        <tr>
-                            <td>1,005</td>
-                            <td>Nulla</td>
-                            <td>quis</td>
-                            <td>sem</td>
-                            <td>at</td>
-                        </tr>
-                        <tr>
-                            <td>1,006</td>
-                            <td>nibh</td>
-                            <td>elementum</td>
-                            <td>imperdiet</td>
-                            <td>Duis</td>
-                        </tr>
-                        <tr>
-                            <td>1,007</td>
-                            <td>sagittis</td>
-                            <td>ipsum</td>
-                            <td>Praesent</td>
-                            <td>mauris</td>
-                        </tr>
-                        <tr>
-                            <td>1,008</td>
-                            <td>Fusce</td>
-                            <td>nec</td>
-                            <td>tellus</td>
-                            <td>sed</td>
-                        </tr>
-                        <tr>
-                            <td>1,009</td>
-                            <td>augue</td>
-                            <td>semper</td>
-                            <td>porta</td>
-                            <td>Mauris</td>
-                        </tr>
-                        <tr>
-                            <td>1,010</td>
-                            <td>massa</td>
-                            <td>Vestibulum</td>
-                            <td>lacinia</td>
-                            <td>arcu</td>
-                        </tr>
-                        <tr>
-                            <td>1,011</td>
-                            <td>eget</td>
-                            <td>nulla</td>
-                            <td>Class</td>
-                            <td>aptent</td>
-                        </tr>
-                        <tr>
-                            <td>1,012</td>
-                            <td>taciti</td>
-                            <td>sociosqu</td>
-                            <td>ad</td>
-                            <td>litora</td>
-                        </tr>
-                        <tr>
-                            <td>1,013</td>
-                            <td>torquent</td>
-                            <td>per</td>
-                            <td>conubia</td>
-                            <td>nostra</td>
-                        </tr>
-                        <tr>
-                            <td>1,014</td>
-                            <td>per</td>
-                            <td>inceptos</td>
-                            <td>himenaeos</td>
-                            <td>Curabitur</td>
-                        </tr>
-                        <tr>
-                            <td>1,015</td>
-                            <td>sodales</td>
-                            <td>ligula</td>
-                            <td>in</td>
-                            <td>libero</td>
-                        </tr>
-                        </tbody>
-                    </table>
-                </div>
             </main>
         </div>
     </div>
 
+    <script>
+        $("#myDropdown").click(function(){
+            $(".dropdown-content").toggle()
+        });
+
+        $(".dropdown-content").hide();
+
+    </script>
 
     <!-- Bootstrap core JavaScript
     ================================================== -->
@@ -345,4 +252,5 @@
     {#            }#}
     {#        });#}
     {#    </script>#}
+
 {% endblock %}

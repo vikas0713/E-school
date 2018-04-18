@@ -1,16 +1,24 @@
 {%  extends 'base_template.html' %}
 {% load static %}
-
+{% block title %}
+    create assignment
+{% endblock %}
 {% block content %}
-
-    <form class="'form-horizontal" action="{% url 'members:create' %}" method="post" >
-    {% csrf_token %}
-        <div align="center">
-            {% include 'form.html' %}
-            <button type="submit" class="signupbtn">SUBMIT</button>
-        </div>
-
-
+    <div align="center">
+    <header><h2><b><label class="form-control-dark">Enter Details Of Assignment Here</label></b>
+    </h2></header>
     </div>
+<div class="select2-container">
+    {% if create %}
+        <form class="'form-horizontal" action="{% url 'members:create' %}" method="post">
+    {% else %}
+        <form class="'form-horizontal" action="{% url 'members:update' assignment.id %}" method="post">
+    {% endif %}
+{% csrf_token %}
+<div align="center">
+    {% include 'form.html' %}
+    <button type="submit" class="btn btn-primary" autofocus>SUBMIT</button>
+</div>
 </form>
 {% endblock %}
+</div>

@@ -1,4 +1,5 @@
 import json
+import operator
 
 from django.contrib import auth, messages
 from django.contrib.auth import logout
@@ -163,6 +164,7 @@ def create_assignment(request):
             return render(request, 'create_assignment.html', {'form': form, 'create': True})
 
 
+@login_required(login_url='/members/login/')
 def update_assignment(request, assignment_id):
     obj = get_object_or_404(Assignment, id=assignment_id)
     form = AssignmentForm(request.POST or None, instance=obj)
@@ -181,6 +183,7 @@ def update_assignment(request, assignment_id):
     return render(request, 'create_assignment.html', context)
 
 
+@login_required(login_url='/members/login/')
 def delete_assignment(request, assignment_id):
     obj = get_object_or_404(Assignment, id=assignment_id)
     obj.delete()
@@ -188,3 +191,31 @@ def delete_assignment(request, assignment_id):
     return HttpResponseRedirect(reverse('members:dashboard'))
 
 
+def sorting_subject(request):
+    all_results = []
+    if request.user.is_parent_or_teacher:
+        for subject in Subject.objects.filter(teacher_id=request.user.id):
+            for assignment_list in Assignment.objects.filter(standard_id=subject.standard_id):
+                all_results.append({'subject': subject.subject_name, 'assignment': assignment_list.assignment_name})
+        sorted_result = sorted(all_results, key=operator.itemgetter('subject'))
+        return render(request, 'sorting_standard.html', {'results': sorted_result})
+
+
+def sorting_assignment(request):
+    all_results = []
+    if request.user.is_parent_or_teacher:
+        for subject in Subject.objects.filter(teacher_id=request.user.id):
+            for assignment_list in Assignment.objects.filter(standard_id=subject.standard_id):
+                all_results.append({'subject': subject.subject_name, 'assignment': assignment_list.assignment_name})
+        sorted_result = sorted(all_results, key=operator.itemgetter('assignment'))
+        return render(request, 'sorting_standard.html', {'results': sorted_result})
+
+
+def sorting_standard(request):
+    all_results = []
+    if request.user.is_parent_or_teacher:
+        for subject in Subject.objects.filter(teacher_id=request.user.id):
+            for assignment_list in Assignment.objects.filter(standard_id=subject.standard_id):
+                all_results.append({'subject': subject.subject_name, 'assignment': assignment_list.assignment_name})
+        sorted_result = sorted(all_results, key=operator.itemgetter('assignment'))
+        return render(request, 'sorting_standard.html', {'results': sorted_result})

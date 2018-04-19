@@ -126,9 +126,9 @@ li {
                             </button>
                             <div  class="dropdown-content">
                                 <ul>
-                                    <li><a href="#">standard</a></li>
-                                    <li><a href="#">subject</a></li>
-                                    <li><a href="#">assignment</a>
+                                    <li><a href="{% url 'members:sorted_standard'%}">standard</a></li>
+                                    <li><a href="{% url 'members:sorted_subject'%}">subject</a></li>
+                                    <li><a href="{% url 'members:sorted_assignment'%}">assignment</a>
                                 </ul>
                             </div>
                         </div>
@@ -154,7 +154,7 @@ li {
 
                                             <div style="font-size: unset">
                                                 <a href="{% url 'members:status' assignment.id %}" class="btn btn-primary">
-                                                    <span data-feather="bar-chart-2"></span>Feedback</a>
+                                                    <span data-feather="bar-chart-2"></span>Report</a>
                                                 <a href = '{% url 'members:update' assignment.id %}' class="btn btn-primary">
                                                     <span data-feather="file-text"></span> Edit</a>
                                                 <a href = '{% url 'members:delete' assignment.id%}' class="btn btn-danger" id="delete"

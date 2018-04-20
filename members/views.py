@@ -15,6 +15,7 @@ from django.views.generic import DeleteView, UpdateView
 from assignments.models import Assignment, FinishedAssignment
 from members.forms import AssignmentForm
 from members.utility.utils import Authenticate
+from standards.models import Standard
 from students.models import Student
 from subjects.models import Subject
 
@@ -194,28 +195,24 @@ def delete_assignment(request, assignment_id):
 def sorting_subject(request):
     all_results = []
     if request.user.is_parent_or_teacher:
-        for subject in Subject.objects.filter(teacher_id=request.user.id):
-            for assignment_list in Assignment.objects.filter(standard_id=subject.standard_id):
-                all_results.append({'subject': subject.subject_name, 'assignment': assignment_list.assignment_name})
-        sorted_result = sorted(all_results, key=operator.itemgetter('subject'))
-        return render(request, 'sorting_standard.html', {'results': sorted_result})
+        for subject in Subject.objects.filter(teacher_id=request.user.id).order_by('subject_name'):
+            all_results.append({'subject': subject, 'assignment': Assignment.objects.filter(standard_id=subject.standard_id).order_by('assignment_name')})
+        return render(request, 'sorting_subject.html', {'results': all_results})
 
 
 def sorting_assignment(request):
     all_results = []
     if request.user.is_parent_or_teacher:
         for subject in Subject.objects.filter(teacher_id=request.user.id):
-            for assignment_list in Assignment.objects.filter(standard_id=subject.standard_id):
-                all_results.append({'subject': subject.subject_name, 'assignment': assignment_list.assignment_name})
-        sorted_result = sorted(all_results, key=operator.itemgetter('assignment'))
-        return render(request, 'sorting_standard.html', {'results': sorted_result})
+            all_results.append({'subject': subject, 'assignment': Assignment.objects.filter(standard_id=subject.standard_id).order_by('assignment_name')})
+
+        return render(request, 'sorting_assignment.html', {'results': all_results})
 
 
 def sorting_standard(request):
     all_results = []
     if request.user.is_parent_or_teacher:
         for subject in Subject.objects.filter(teacher_id=request.user.id):
-            for assignment_list in Assignment.objects.filter(standard_id=subject.standard_id):
-                all_results.append({'subject': subject.subject_name, 'assignment': assignment_list.assignment_name})
-        sorted_result = sorted(all_results, key=operator.itemgetter('assignment'))
-        return render(request, 'sorting_standard.html', {'results': sorted_result})
+            all_results.append({'subject': subject, 'assignment': Assignment.objects.filter(teacher_id=request.user.id),
+                                'standard': Standard.objects.filter(standard_name=subject.standard).order_by('standard_name')})
+        return render(request, 'sorting_standard.html', {'results': all_results})

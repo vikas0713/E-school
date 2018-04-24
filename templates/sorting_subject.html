@@ -1,4 +1,257 @@
-{%extends 'base_template.html'%}
+{% extends 'base_template.html' %}
+{% load static %}
+{% block title %}
+    Dashboard
+{% endblock %}
+{% block custom_css %}
+    <link href="{% static 'css_files/dashboard.css' %}">
+    {#    <link href="{% static 'css_files/filter.css' %}">#}
+    {#    <script src="{% static 'js_files/filter.js' %}"></script>#}
+<style>
+li {
+    list-style: none;
+    line-height: 1.2em;
+}
+.dropdown-content{
+    position: absolute;
+}
+</style>
+
+
+{% endblock %}
 {% block content %}
-    {{ results }}
+
+    <nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0">
+        <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="#">School Diary</a>
+        <input class="form-control form-control-dark w-100" type="text" placeholder="Search" aria-label="Search">
+        <ul class="navbar-nav px-3">
+            <li class="nav-item text-nowrap">
+                <a class="nav-link" href="{% url 'members:logout' %}">Sign out</a>
+            </li>
+        </ul>
+    </nav>
+
+    <div class="container-fluid">
+        <div class="row">
+            <nav class="col-md-2 d-none d-md-block bg-light sidebar">
+                <div class="sidebar-sticky">
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="{% url 'members:dashboard'%}">
+                                <span data-feather="home"></span>
+                                Dashboard <span class="sr-only">(current)</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">
+                                <span data-feather="file"></span>
+                                Notice Board
+                            </a>
+                        </li>
+{#                        <li class="nav-item">#}
+{#                            <a class="nav-link" href="#">#}
+{#                                <span data-feather="shopping-cart"></span>#}
+{#                                Parent#}
+{#                            </a>#}
+{#                        </li>#}
+{#                        <li class="nav-item">#}
+{#                            <a class="nav-link" href="#">#}
+{#                                <span data-feather="users"></span>#}
+{#                                Customers#}
+{#                            </a>#}
+{#                        </li>#}
+{#                        <li class="nav-item">#}
+{#                            <a class="nav-link" href="#">#}
+{#                                <span data-feather="bar-chart-2"></span>#}
+{#                                Reports#}
+{#                            </a>#}
+{#                        </li>#}
+{#                        <li class="nav-item">#}
+{#                            <a class="nav-link" href="#">#}
+{#                                <span data-feather="layers"></span>#}
+{#                                Integrations#}
+{#                            </a>#}
+{#                        </li>#}
+                    </ul>
+
+                    <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+                        <span>Saved reports</span>
+                        <a class="d-flex align-items-center text-muted" href="#">
+                            <span data-feather="plus-circle"></span>
+                        </a>
+                    </h6>
+                    <ul class="nav flex-column mb-2">
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">
+                                <span data-feather="file-text"></span>
+                                Current month
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">
+                                <span data-feather="file-text"></span>
+                                Last quarter
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">
+                                <span data-feather="file-text"></span>
+                                Social engagement
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">
+                                <span data-feather="file-text"></span>
+                                Year-end sale
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <main role="main" class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+                    <h1 class="h2">DashBoard</h1>
+                    <div class="btn-toolbar mb-2 mb-md-0">
+                        <div class="btn-group mr-2">
+                            <a href="{% url 'members:create'%}" class="btn btn-primary">
+                                <span data-feather="file"></span>Create Assignment</a>
+                        </div>
+
+                        <div class="dropdown">
+                            <button class="dropbtn btn btn-danger dropdown-toggle" id="myDropdown">
+                                <span data-feather="filter"></span>
+                                Filter by
+
+                            </button>
+                            <div  class="dropdown-content">
+                                <ul>
+                                    <li><a href="{% url 'members:sorted_standard'%}">standard</a></li>
+                                    <li><a href="{% url 'members:sorted_subject'%}">subject</a></li>
+                                    <li><a href="{% url 'members:sorted_assignment'%}">assignment</a>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!--check implemented to check weather the user is teacher?? -->
+                {% if request.user.is_parent_or_teacher %}
+                    <!--loop used on results to extract fields -->
+
+                    {% for result in results %}
+
+                        <h2 class="text-center"> <b>  Standard:{{ result.subject.standard }} </b></h2>
+                        <div class="row">
+                            {%if result.assignments%}
+                                {% for assignment in result.assignments %}
+                                    <div class="card col-sm-4" style="width: 18rem;">
+
+                                        <img class="card-img-top" src="{% static 'images/thumbtack_note_assignment.png' %}" alt="Card image cap">
+                                        <div class="card-body">
+                                            <h5 class="card-title">Subject:<b>{{assignment.subject}}</b><br>
+                                                {{assignment.created_at}} <br>Assignments:</h5>
+                                            <b><p class="card-text">
+                                                {{assignment.assignment_name}}</p></b>
+
+                                            <div style="font-size: unset">
+                                                <a href="{% url 'members:status' assignment.id %}" class="btn btn-primary">
+                                                    <span data-feather="bar-chart-2"></span>Report</a>
+                                                <a href = '{% url 'members:update' assignment.id %}' class="btn btn-primary">
+                                                    <span data-feather="file-text"></span> Edit</a>
+                                                <a href = '{% url 'members:delete' assignment.id%}' class="btn btn-danger" id="delete"
+                                                onclick="return confirm('Do you want to delete this Assignment? Press OK,');">
+                                                    <span data-feather="trash"> </span>Delete</a>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                {% endfor %}
+                            {% else %}
+                                <h3> <b>No Assignment Given</b> </h3>
+
+
+                            {% endif %}
+
+
+                        </div>
+
+                    {% endfor %}
+
+                    <!--else check implemented for Parent user ?? -->
+
+                {% else %}
+                    <!--loop implemented to extract the results fields -->
+
+                    {% for details in results %}
+                        <h2 class="text-center"> Student name: <b>{{details.student}}</b> | Standard: <b>{{details.student.standard}}</b></h2>
+                        <div class="row">
+                            {% for assignment in details.assignments %}
+                                <div class="card col-sm-3" style="width: 18rem;">
+                                    <img class="card-img-top" src="{% static 'images/thumbtack_note_assignment.png' %}" alt="Card image cap">
+                                    <div class="card-body">
+                                        <h5 class="card-title">{{assignment.time}}<br>Assignments:<b>{{assignment.subject}}</b></h5>
+
+                                        <p class="card-text">
+                                            {{assignment.assignment.assignment_name}}</p>
+                                        <b>Status:
+                                            {% if assignment.status %}
+                                                'Complete'
+                                            {% else %}
+                                                'Incomplete'
+                                            {% endif %}</b>
+
+                                    </div>
+                                </div>
+                            {% endfor %}
+
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            </main>
+        </div>
+    </div>
+
+    <script>
+        $("#myDropdown").click(function(){
+            $(".dropdown-content").toggle()
+        });
+
+        $(".dropdown-content").hide();
+
+    </script>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+
+    {#    <script>#}
+    {#        var ctx = document.getElementById("myChart");#}
+    {#        var myChart = new Chart(ctx, {#}
+    {#            type: 'line',#}
+    {#            data: {#}
+    {#                labels: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],#}
+    {#                datasets: [{#}
+    {#                    data: [15339, 21345, 18483, 24003, 23489, 24092, 12034],#}
+    {#                    lineTension: 0,#}
+    {#                    backgroundColor: 'transparent',#}
+    {#                    borderColor: '#007bff',#}
+    {#                    borderWidth: 4,#}
+    {#                    pointBackgroundColor: '#007bff'#}
+    {#                }]#}
+    {#            },#}
+    {#            options: {#}
+    {#                scales: {#}
+    {#                    yAxes: [{#}
+    {#                        ticks: {#}
+    {#                            beginAtZero: false#}
+    {#                        }#}
+    {#                    }]#}
+    {#                },#}
+    {#                legend: {#}
+    {#                    display: false,#}
+    {#                }#}
+    {#            }#}
+    {#        });#}
+    {#    </script>#}
+
 {% endblock %}

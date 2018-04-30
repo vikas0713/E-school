@@ -11,7 +11,7 @@ from django.views.decorators.csrf import csrf_exempt
 from assignments.models import Assignment, FinishedAssignment
 from members.forms import AssignmentForm, NoticeForm
 from members.utility.utils import Authenticate
-from noticeboard.models import Notification
+from noticeboard.models import Notification, NoticeBoard
 from students.models import Student
 from subjects.models import Subject
 
@@ -268,11 +268,14 @@ def notifications(request):
     """
     data = []
     for notification in Notification.objects.filter(notice_courtesy_id=request.user.id):
+
         data.append({'notice': notification.notice,
                      'class': notification.notice.standard,
-                    'posted_for': notification.notice_courtesy})
-
-    return render(request, 'noticeboard.html', {'data': data})
+                     'posted_for': notification.notice_courtesy,
+                     'created_at': notification.notice.created_at,
+                     'obj_id': notification.id,
+                     'is_read':notification.is_read})
+    return render(request, 'notifications.html', {'data': data})
 
 
 def create_notice(request):
@@ -281,9 +284,9 @@ def create_notice(request):
     :param request: Get request to render form
     :return: NoticeBoard Form entities 'notification_name','standard','posted_by'
     """
-
     if request.method == 'GET':
         form = NoticeForm()
+
         return render(request, 'create_notice.html', {'form': form})
 
     elif request.method == 'POST':
@@ -292,3 +295,19 @@ def create_notice(request):
             form.save()
             return render(request, 'create_notice.html', {'form': form})
 
+
+@csrf_exempt
+def notification_check(request):
+    """
+    :param request:
+    :return:
+    """
+    if not request.user.is_parent_or_teacher:
+        data=json.loads(request.body.decode(encoding='UTF-8'))
+        if request.method == 'POST':
+            for each_data in data['data']:
+                obj = Notification.objects.get(id=int(each_data))
+                obj.is_read = True
+                obj.save()
+
+    return HttpResponse('ok')

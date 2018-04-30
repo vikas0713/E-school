@@ -20,4 +20,5 @@ urlpatterns = [
     path('sorting_assignment/', views.sorting_assignment, name='sorted_assignment'),
     path('notifications/', views.notifications, name='notification'),
     path('creating_notice/', views.create_notice, name='create_notice'),
+    path('check/', views.notification_check, name='notification_check'),
 ]

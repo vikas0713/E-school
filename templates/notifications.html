@@ -1,0 +1,54 @@
+{% extends 'base_template.html'%}
+{% load static %}
+{% block content %}
+
+    {% if not request.user.is_parent_or_teacher %}
+
+        <div class="row">
+            {% for notice in data %}
+                <div class="card sol-sm-4" style="width: 18rem" id="{{ notice.obj_id }}">
+                    <img class="card-img-top" src="{% static 'images/notice-sign-clipart-1.jpg'%}" alt="Card image cap">
+                    <div class = 'card-body'>
+                        <b><h4>Notification:{{ notice.created_at }}</h4>{{ notice.notice }}</b>
+                        <h5><b>Class:{{ notice.class }}</b></h5>
+                        <h5 class="card-title">
+                            post for "{{notice.posted_for}}"
+                        </h5>
+                        {% if notice.is_read %}
+                            <span style="font-family: wingdings; font-size: 200%;">&#10004;</span>checked
+                        {% else %}
+                           <span data-feather="bell" style="color:goldenrod"></span>
+                        {% endif %}
+                    </div>
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+    {% else %}
+        <h3>You are not Parent??You don't have right to access the details</h3>
+    {% endif %}
+    <script>
+    var allId = [];
+    var allChildrens = $(".row").children();
+    for(i=0;i<allChildrens.length;i++){
+        allId.push($(allChildrens[i]).attr("id"))
+
+    }
+    console.log(allId);
+    $.ajax(
+        {
+            method:'post',
+            data: JSON.stringify({'data': allId}),
+            url:'/members/check/',
+            dataType: 'json',
+            contentType: "application/json",
+           success: function (response) {
+                console.log(response)
+
+          }
+        })
+    </script>
+
+{%  endblock %}

@@ -21,6 +21,7 @@ class NoticeBoard(Core):
 class Notification(Core):
     notice = models.ForeignKey(NoticeBoard, on_delete=CASCADE)
     notice_courtesy = models.ForeignKey(Member, on_delete=CASCADE)
+    is_read = models.BooleanField(default=False, help_text="if checked, notice is read")
 
     def __str__(self):
         return str(self.notice)

@@ -6,15 +6,15 @@
 {% block custom_css %}
     <link href="{% static 'css_files/dashboard.css' %}">
 
-<style>
-li {
-    list-style: none;
-    line-height: 1.2em;
-}
-.dropdown-content{
-    position: absolute;
-}
-</style>
+    <style>
+        li {
+            list-style: none;
+            line-height: 1.2em;
+        }
+        .dropdown-content{
+            position: absolute;
+        }
+    </style>
 
 
 {% endblock %}
@@ -42,72 +42,38 @@ li {
                             </a>
                         </li>
                         {% if not request.user.is_parent_or_teacher %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'members:notification'%}">
-                                <span data-feather="bell"></span>
-                               Notifications
-                            </a>
-                        </li>
-                            {% else %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'members:create_notice' %}">
-                                <span data-feather="file-text"></span>
-                                Create Notice
-                            </a>
-                        </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'members:notification'%}">
+                                    <span data-feather="bell"></span>
+                                    Notifications
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'members:pdf_file' %}">
+                                    <span data-feather="file-text"></span>
+                                    Import PDF
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'members:csv_file' %}">
+                                    <span data-feather="file-text"></span>
+                                    Import CSV
+                                </a>
+                            </li>
+
+                        {% else %}
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'members:create_notice' %}">
+                                    <span data-feather="file-text"></span>
+                                    Create Notice
+                                </a>
+                            </li>
+
+
                         {% endif %}
-{#                        <li class="nav-item">#}
-{#                            <a class="nav-link" href="#">#}
-{#                                <span data-feather="users"></span>#}
-{#                                Customers#}
-{#                            </a>#}
-{#                        </li>#}
-{#                        <li class="nav-item">#}
-{#                            <a class="nav-link" href="#">#}
-{#                                <span data-feather="bar-chart-2"></span>#}
-{#                                Reports#}
-{#                            </a>#}
-{#                        </li>#}
-{#                        <li class="nav-item">#}
-{#                            <a class="nav-link" href="#">#}
-{#                                <span data-feather="layers"></span>#}
-{#                                Integrations#}
-{#                            </a>#}
-{#                        </li>#}
+
                     </ul>
 
-                    <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
-                        <span>Saved reports</span>
-                        <a class="d-flex align-items-center text-muted" href="#">
-                            <span data-feather="plus-circle"></span>
-                        </a>
-                    </h6>
-                    <ul class="nav flex-column mb-2">
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">
-                                <span data-feather="file-text"></span>
-                                Current month
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">
-                                <span data-feather="file-text"></span>
-                                Last quarter
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">
-                                <span data-feather="file-text"></span>
-                                Social engagement
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">
-                                <span data-feather="file-text"></span>
-                                Year-end sale
-                            </a>
-                        </li>
-                    </ul>
                 </div>
             </nav>
 
@@ -115,11 +81,12 @@ li {
                 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
                     <h1 class="h2">DashBoard</h1>
                     <div class="btn-toolbar mb-2 mb-md-0">
-                        <div class="btn-group mr-2">
-                            <a href="{% url 'members:create'%}" class="btn btn-primary">
-                                <span data-feather="file"></span>Create Assignment</a>
-                        </div>
-
+                        {% if request.user.is_parent_or_teacher %}
+                            <div class="btn-group mr-2">
+                                <a href="{% url 'members:create'%}" class="btn btn-primary">
+                                    <span data-feather="file"></span>Create Assignment</a>
+                            </div>
+                        {% endif %}
                         <div class="dropdown">
                             <button class="dropbtn btn btn-danger dropdown-toggle" id="myDropdown">
                                 <span data-feather="filter"></span>
@@ -156,12 +123,14 @@ li {
                                                 {{assignment.assignment_name}}</p></b>
 
                                             <div style="font-size: unset">
+
                                                 <a href="{% url 'members:status' assignment.id %}" class="btn btn-primary">
                                                     <span data-feather="bar-chart-2"></span>Report</a>
+
                                                 <a href = '{% url 'members:update' assignment.id %}' class="btn btn-primary">
                                                     <span data-feather="file-text"></span> Edit</a>
                                                 <a href = '{% url 'members:delete' assignment.id%}' class="btn btn-danger" id="delete"
-                                                onclick="return confirm('Do you want to delete this Assignment? Press OK,');">
+                                                   onclick="return confirm('Do you want to delete this Assignment? Press OK,');">
                                                     <span data-feather="trash"> </span>Delete</a>
                                             </div>
                                         </div>
@@ -187,28 +156,28 @@ li {
                     {% for details in results %}
                         <h2 class="text-center"> Student name: <b>{{details.student}}</b> | Standard: <b>{{details.student.standard}}</b></h2>
                         <div class="row">
-                        {% if details.assignments %}
-                            {% for assignment in details.assignments %}
-                                <div class="card col-sm-4" style="width: 18rem;">
-                                    <img class="card-img-top" src="{% static 'images/thumbtack_note_assignment.png' %}" alt="Card image cap">
-                                    <div class="card-body">
-                                        <h5 class="card-title">{{assignment.time}}<br>Assignments:<b>{{assignment.subject}}</b></h5>
+                            {% if details.assignments %}
+                                {% for assignment in details.assignments %}
+                                    <div class="card col-sm-4" style="width: 18rem;">
+                                        <img class="card-img-top" src="{% static 'images/thumbtack_note_assignment.png' %}" alt="Card image cap">
+                                        <div class="card-body">
+                                            <h5 class="card-title">{{assignment.time}}<br>Assignments:<b>{{assignment.subject}}</b></h5>
 
-                                        <p class="card-text">
-                                            {{assignment.assignment.assignment_name}}</p>
-                                        <b>Status:
-                                            {% if assignment.status %}
-                                                'Complete'
-                                            {% else %}
-                                                'Incomplete'
-                                            {% endif %}</b>
+                                            <p class="card-text">
+                                                {{assignment.assignment.assignment_name}}</p>
+                                            <b>Status:
+                                                {% if assignment.status %}
+                                                    'Complete'
+                                                {% else %}
+                                                    'Incomplete'
+                                                {% endif %}</b>
 
+                                        </div>
                                     </div>
-                                </div>
-                            {% endfor %}
-                        {% else %}
-                        <h3> <b>No Assignment Given</b> </h3>
-                        {% endif %}
+                                {% endfor %}
+                            {% else %}
+                                <h3> <b>No Assignment Given</b> </h3>
+                            {% endif %}
                         </div>
 
                     {% endfor %}

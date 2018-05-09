@@ -19,7 +19,7 @@ class Assignment(Core):
 	teacher = models.ForeignKey(Member, on_delete=CASCADE)
 
 	def __str__(self):
-		return self.assignment_name
+		return self.assignment_name + str(self.subject)
 
 	def save(self, *args, **kwargs):
 		if self.teacher.is_parent_or_teacher:
@@ -38,3 +38,14 @@ class FinishedAssignment(Core):
 
 	def __str__(self):
 		return str(self.assignment.assignment_name) + '--' + str(self.student.id)
+
+
+class Report(models.Model):
+	"""
+	Downloading Details of csv file
+	"""
+	report_time = models.DateTimeField(auto_now_add=True)
+	reported_user = models.ForeignKey(Member, on_delete=CASCADE)
+
+	def __str__(self):
+		return str(self.report_time)

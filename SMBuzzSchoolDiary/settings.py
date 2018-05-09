@@ -47,6 +47,7 @@ INSTALLED_APPS = [
 	'students',
 	'assignments',
 	'noticeboard',
+
 ]
 
 MIDDLEWARE = [

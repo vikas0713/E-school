@@ -1,3 +1,4 @@
 Django==2.0.3
 psycopg2==2.7.4
 pytz==2018.3
+pdfkit ==0.12.2.4-1

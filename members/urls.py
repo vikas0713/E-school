@@ -1,8 +1,6 @@
-
 from django.urls import path
 
 from members import views
-
 
 app_name = 'members'
 urlpatterns = [
@@ -21,4 +19,6 @@ urlpatterns = [
     path('notifications/', views.notifications, name='notification'),
     path('creating_notice/', views.create_notice, name='create_notice'),
     path('check/', views.notification_check, name='notification_check'),
+    path('pdf_file/', views.pdf_response, name='pdf_file'),
+    path('csv_file/', views.csv_response, name='csv_file'),
 ]

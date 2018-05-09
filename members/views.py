@@ -1,4 +1,7 @@
+import csv
+import datetime
 import json
+import os.path
 
 from django.contrib import auth, messages
 from django.contrib.auth.decorators import login_required
@@ -6,12 +9,14 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
+from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
+from reportlab.pdfgen import canvas
 
-from assignments.models import Assignment, FinishedAssignment
+from assignments.models import Assignment, FinishedAssignment, Report
 from members.forms import AssignmentForm, NoticeForm
 from members.utility.utils import Authenticate
-from noticeboard.models import Notification, NoticeBoard
+from noticeboard.models import Notification
 from students.models import Student
 from subjects.models import Subject
 
@@ -190,10 +195,11 @@ def update_assignment(request, assignment_id):
         return HttpResponseRedirect(reverse('members:dashboard'))
 
     context = {
-       'assignment': obj,
-       'form': form,
-       'create': False,
-       }
+
+        'assignment': obj,
+        'form': form,
+        'create': False,
+    }
     return render(request, 'create_assignment.html', context)
 
 
@@ -210,6 +216,7 @@ def delete_assignment(request, assignment_id):
     return HttpResponseRedirect(reverse('members:dashboard'))
 
 
+@csrf_exempt
 def sorting_subject(request):
     """
     The Assignment is Ordered by Subject
@@ -221,8 +228,26 @@ def sorting_subject(request):
         for subject in Subject.objects.filter(teacher_id=request.user.id).order_by('subject_name'):
             all_results.append({'subject': subject, 'assignments': Assignment.objects.filter(standard_id=subject.standard_id).order_by('assignment_name')})
         return render(request, 'sorting_subject.html', {'results': all_results})
+    else:
+        for student in Student.objects.filter(parent_id=request.user.id):
+            obj = {
+                "student": student,
+                "assignments": []
+            }
+            for assignment in Assignment.objects.filter(standard_id=student.standard_id).order_by('subject__subject_name'):
+                if FinishedAssignment.objects.filter(student_id=student.id, assignment_id=assignment.id).exists():
+                    status = True
+                else:
+                    status = False
+                obj["assignments"].append({"assignment": assignment, "status": status,
+                                           "time": assignment.created_at,
+                                           "subject": assignment.subject})
+
+            all_results.append(obj)
+        return render(request, 'sorting_subject.html', {'results': all_results})
 
 
+@csrf_exempt
 def sorting_assignment(request):
     """
     The assignment is Ordered by Assignment
@@ -234,8 +259,26 @@ def sorting_assignment(request):
         for subject in Subject.objects.filter(teacher_id=request.user.id):
             all_results.append({'subject': subject, 'assignments': Assignment.objects.filter(standard_id=subject.standard_id).order_by('assignment_name')})
         return render(request, 'sorting_assignment.html', {'results': all_results})
+    else:
+        for student in Student.objects.filter(parent_id=request.user.id):
+            obj = {
+                "student": student,
+                "assignments": []
+            }
+            for assignment in Assignment.objects.filter(standard_id=student.standard_id).order_by('assignment_name'):
+                if FinishedAssignment.objects.filter(student_id=student.id, assignment_id=assignment.id).exists():
+                    status = True
+                else:
+                    status = False
+                obj["assignments"].append({"assignment": assignment, "status": status,
+                                           "time": assignment.created_at,
+                                           "subject": assignment.subject})
+
+            all_results.append(obj)
+        return render(request, 'sorting_assignment.html', {'results': all_results})
 
 
+@csrf_exempt
 def sorting_standard(request):
     """
     The assignment is Ordered by Standard
@@ -243,24 +286,44 @@ def sorting_standard(request):
     :return:
     """
     results = []
-    for assignment in Assignment.objects.filter(teacher_id=request.user.id).order_by('standard__standard_identifier'):
-        if results:
-            available_standards = [k["standard"] for k in results]
-            if assignment.standard in available_standards:
-                for each_standard in results:
-                    if assignment.standard == each_standard["standard"]:
-                        each_standard["assignments"].append(assignment)
-                        break
+    if request.user.is_parent_or_teacher:
+        for assignment in Assignment.objects.filter(teacher_id=request.user.id).order_by('standard__standard_identifier'):
+            if results:
+                available_standards = [k["standard"] for k in results]
+                if assignment.standard in available_standards:
+                    for each_standard in results:
+                        if assignment.standard == each_standard["standard"]:
+                            each_standard["assignments"].append(assignment)
+                            break
+                else:
+                    results.append({"standard": assignment.standard,
+                                    "assignments": [assignment]})
+
             else:
                 results.append({"standard": assignment.standard,
                                 "assignments": [assignment]})
+        return render(request, 'sorting_standard.html', {"results": results})
+    else:
+        for student in Student.objects.filter(parent_id=request.user.id).order_by('standard__subject__subject_name'):
+            obj = {
+                "student": student,
+                "assignments": []
+            }
+            for assignment in Assignment.objects.filter(standard_id=student.standard_id):
+                if FinishedAssignment.objects.filter(student_id=student.id, assignment_id=assignment.id).exists():
+                    status = True
+                else:
+                    status = False
+                obj["assignments"].append({"assignment": assignment, "status": status,
+                                           "time": assignment.created_at,
+                                           "subject": assignment.subject})
 
-        else:
-            results.append({"standard": assignment.standard,
-                            "assignments": [assignment]})
-    return render(request, 'sorting_standard.html', {"results": results})
+            results.append(obj)
+
+        return render(request, 'sorting_standard.html', {"results": results})
 
 
+@csrf_exempt
 def notifications(request):
     """
     To show notice on Parent pannel as notification
@@ -278,6 +341,7 @@ def notifications(request):
     return render(request, 'notifications.html', {'data': data})
 
 
+@csrf_exempt
 def create_notice(request):
     """
     To create notice by Teacher and used only in Teacher's Pannel
@@ -303,7 +367,7 @@ def notification_check(request):
     :return:
     """
     if not request.user.is_parent_or_teacher:
-        data=json.loads(request.body.decode(encoding='UTF-8'))
+        data = json.loads(request.body.decode(encoding='UTF-8'))
         if request.method == 'POST':
             for each_data in data['data']:
                 obj = Notification.objects.get(id=int(each_data))
@@ -311,3 +375,120 @@ def notification_check(request):
                 obj.save()
 
     return HttpResponse('ok')
+
+
+@csrf_exempt
+def pdf_response(request):
+    """
+    response if assignment in pdf format
+    :param requsest:
+    :return:
+    """
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="pdf_report.pdf"'
+    p = canvas.Canvas(response)
+    coordinate_range = [i for i in range(750, 100, -50)]
+    if not request.user.is_parent_or_teacher:
+        for student, coordinate in zip(Student.objects.filter(parent_id=request.user.id), coordinate_range):
+            student_str = 'student' + str(student)
+            for assignments in Assignment.objects.filter(standard_id=student.standard_id):
+                if FinishedAssignment.objects.filter(student_id=student.id,
+                                                     assignment_id=assignments.id):
+                    status = "completed"
+                else:
+                    status = "Not completed"
+
+                student_str += "Assignment" + str(assignments) + "Status" + str(status) +"Subject" + \
+                               str(assignments.subject)+"\n"
+
+                p.drawString(0, coordinate, student_str)
+
+        p.showPage()
+        p.save()
+        path = os.path.exists('/home/ayush/Downloads/pdf_report.pdf')
+
+        if path:
+            return HttpResponse("Sorry You Cannot Download the Document more than one ")
+        else:
+            return response
+
+
+@csrf_exempt
+def csv_response(request):
+    """
+    response if assignment in comma seperated values(CSV) format
+    :param request:
+    :return:
+    """
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="csv_report.csv"'
+    coordinate_range = [i for i in range(750, 100, -50)]
+    writer = csv.writer(response)
+    writer.writerow(["Student Name", "Class", "Subject", "Assignment Name", "Status"])
+    writer.writerow([" "])
+    if not request.user.is_parent_or_teacher:
+        # Check if the record for specific user/parent exists
+        # check if the difference of record time and current time is greater than limit
+        # Download report and update record time with current time
+        # else user/parent does not have permission
+        # else Download report and create record.
+        if Report.objects.filter(reported_user_id=request.user.id).exists():
+            stored_obj = Report.objects.get(reported_user_id=request.user.id)
+            time_t1 = stored_obj.report_time
+            time_t2 = timezone.now()
+            time_gap = (time_t2 - time_t1).seconds
+            minutes = time_gap/60
+            limit = 1440
+            if minutes > limit:
+                stored_obj.report_time = time_t2
+                stored_obj.save()
+                for student, coordinate in zip(Student.objects.filter(parent_id=request.user.id),
+                                               coordinate_range):
+                    student_str = ('student' + str(student))
+                    for assignments in Assignment.objects.filter(standard_id=student.standard_id):
+                        if FinishedAssignment.objects.filter(student_id=student.id,
+                                                             assignment_id=assignments.id):
+                            status = "completed"
+                        else:
+                            status = "Not completed"
+
+                    student_str += (
+                            "Subject" + str(assignments.subject) + "Assignment"
+                            + str(assignments) + "Status" + str(status) + "Subject" +
+                            str(assignments.subject) + "\n")
+                    writer.writerow(
+                        [student.student_name, student.standard, assignments.subject,
+                         assignments.assignment_name,
+                         status])
+                return response
+            else:
+                return HttpResponse("User Parent doesn't have permission For Next 24 hr's!!")
+        else:
+            Report.objects.create(report_time=datetime.datetime.now(), reported_user=request.user)
+            for student, coordinate in zip(Student.objects.filter(parent_id=request.user.id),
+                                           coordinate_range):
+                student_str = ('student' + str(student))
+                for assignments in Assignment.objects.filter(standard_id=student.standard_id):
+                    if FinishedAssignment.objects.filter(student_id=student.id,
+                                                         assignment_id=assignments.id):
+                        status = "completed"
+                    else:
+                        status = "Not completed"
+
+                student_str += (
+                        "Subject" + str(assignments.subject) + "Assignment" + str(assignments)
+                        + "Status" + str(status) + "Subject" +
+                        str(assignments.subject) + "\n")
+                writer.writerow(
+                    [student.student_name, student.standard, assignments.subject,
+                     assignments.assignment_name,
+                     status])
+            return response
+
+
+
+
+
+
+
+

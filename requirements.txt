@@ -1,4 +1,8 @@
 Django==2.0.3
+django-pdfkit==0.3.1
+pdfkit==0.6.0
+Pillow==5.1.0
 psycopg2==2.7.4
+PyPDF2==1.26.0
 pytz==2018.3
-pdfkit ==0.12.2.4-1
+reportlab==3.4.0

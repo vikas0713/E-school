@@ -87,23 +87,20 @@
                                     <span data-feather="file"></span>Create Assignment</a>
                             </div>
                         {% endif %}
-                        <div class="dropdown">
-                            <button class="dropbtn btn btn-danger dropdown-toggle" id="myDropdown">
-                                <span data-feather="filter"></span>
-                                Order by
 
-                            </button>
-                            <div  class="dropdown-content">
-
-                                <ul>
-                                    <li><b><a href="{% url 'members:sorted_standard'%}">Standard</a></b></li>
-                                    <li><b><a href="{% url 'members:sorted_subject'%}">Subject</a></b></li>
-                                    <li><b><a href="{% url 'members:sorted_assignment'%}">Assignment</a></b>
+                            <div class="dropdown">
+                                <button class="btn btn-danger dropdown-toggle" type="button" data-toggle="dropdown">Order by
+                                <span class="caret"></span></button>
+                                <ul class="dropdown-menu dashboard-menu">
+                                  <li><a href={% url 'members:sorted_standard'%}>Standard</a></li>
+                                  <li><a href={% url 'members:sorted_subject'%}>Subject</a></li>
+                                  <li><a href={% url 'members:sorted_assignment'%}>Assignment</a></li>
                                 </ul>
-                            </div>
+                          </div>
+
                         </div>
                     </div>
-                </div>
+
                 <!--check implemented to check weather the user is teacher?? -->
                 {% if request.user.is_parent_or_teacher %}
                     <!--loop used on results to extract fields -->

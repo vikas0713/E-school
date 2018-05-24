@@ -91,3 +91,5 @@ body {
 
 .border-top { border-top: 1px solid #e5e5e5; }
 .border-bottom { border-bottom: 1px solid #e5e5e5; }
+ul.dropdown-menu.dashboard-menu.show {left: 4px !important; }
+ul.dropdown-menu.dashboard-menu {min-width: 7rem !important;}

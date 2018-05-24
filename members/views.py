@@ -438,7 +438,7 @@ def csv_response(request):
             time_t2 = timezone.now()
             time_gap = (time_t2 - time_t1).seconds
             minutes = time_gap/60
-            limit = 1440
+            limit = 1
             if minutes > limit:
                 stored_obj.report_time = time_t2
                 stored_obj.save()
